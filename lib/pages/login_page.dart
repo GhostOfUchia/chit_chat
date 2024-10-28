@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
                 controller: passwordController,
                 obscureText: hide,
                 decoration: InputDecoration(
-                    prefixIcon: IconButton(
+                    suffixIcon: IconButton(
                       onPressed: () {
                         setState(() {
                           hide = !hide;
@@ -60,7 +60,10 @@ class _LoginPageState extends State<LoginPage> {
                 height: 50,
                 width: 150,
                 child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (emailController.text == "" ||
+                          passwordController.text == "") {}
+                    },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.black,
                       side: const BorderSide(color: Colors.black),

@@ -1,4 +1,4 @@
-import 'package:chit_chat/validater.dart';
+import 'package:chit_chat/service/validater.dart';
 import 'package:flutter/material.dart';
 
 class SignUpPage extends StatefulWidget {
