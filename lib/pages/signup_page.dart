@@ -40,6 +40,9 @@ class _SignUpPageState extends State<SignUpPage> {
           .then((value) {
         showToast("new User Created");
       });
+      emailController.clear();
+      passwordController.clear();
+      cnPasswordController.clear();
     }
   }
 

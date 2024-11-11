@@ -1,4 +1,8 @@
+import 'package:chit_chat/models/user_model.dart';
 import 'package:chit_chat/pages/signup_page.dart';
+import 'package:chit_chat/service/show_toast.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,6 +15,28 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  login(String email, String password) async {
+    UserCredential? userCredential;
+    try {
+      userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+    } on FirebaseAuthException catch (ex) {
+      showToast(ex.message.toString());
+    }
+
+    if (userCredential != null) {
+      String uid = userCredential.user!.uid;
+      DocumentSnapshot userData =
+          await FirebaseFirestore.instance.collection("users").doc(uid).get();
+
+      UserModel userModel =
+          UserModel.fromMap(userData.data() as Map<String, dynamic>);
+      showToast("Login Sucessfully");
+      emailController.clear();
+      passwordController.clear();
+    }
+  }
 
   bool hide = false;
   @override
@@ -62,7 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                 child: OutlinedButton(
                     onPressed: () {
                       if (emailController.text == "" ||
-                          passwordController.text == "") {}
+                          passwordController.text == "") {
+                        showToast("Please Enter valid Email and Password");
+                      } else {
+                        login(emailController.text.trim(),
+                            passwordController.text.trim());
+                      }
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.black,
