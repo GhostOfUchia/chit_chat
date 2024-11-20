@@ -1,11 +1,24 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:io';
 
+import 'package:chit_chat/models/user_model.dart';
+import 'package:chit_chat/pages/home_page.dart';
+import 'package:chit_chat/service/show_toast.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CompleteProfilePage extends StatefulWidget {
-  const CompleteProfilePage({super.key});
+  final UserModel userModel;
+  final User firebaseUser;
+  const CompleteProfilePage({
+    super.key,
+    required this.userModel,
+    required this.firebaseUser,
+  });
 
   @override
   State<CompleteProfilePage> createState() => _CompleteProfilePageState();
@@ -16,7 +29,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   TextEditingController fullName =
       TextEditingController(); // this is for full name
 
-// step one show opeation for taking pic
+//   Circul Avater Clicking step=>    step one show opeation for taking pic
   showImageOpeation() {
     showDialog(
         context: context,
@@ -70,6 +83,49 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     }
   }
 
+  // Submit button Clicking step
+  // setp one => checkValue
+  checkValue() {
+    String name = fullName.text.trim();
+    if (name == "" || profileImage == null) {
+      showToast("Please Enter All The Fields ");
+    } else {
+      uploadData();
+    }
+  }
+
+  // step Two => upload Data
+  uploadData() async {
+    // set up our storage
+    UploadTask uploadTask = FirebaseStorage.instance
+        .ref("ProfilePic")
+        .child(widget.userModel.uid.toString())
+        .putFile(profileImage!);
+
+    // we can wait to get upload task complete and get tasksnapshot
+    TaskSnapshot taskSnapshot = await uploadTask;
+
+    // download image url for saving firebasecloudfirestore
+    String imageUrl = await taskSnapshot.ref.getDownloadURL();
+    String userName = fullName.text.trim();
+
+    widget.userModel.profilepic = imageUrl;
+    widget.userModel.fullname = userName;
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(widget.userModel.uid)
+        .set(widget.userModel.toMap())
+        .then((value) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return HomePage(
+          userModel: widget.userModel,
+          firebaseUser: widget.firebaseUser,
+        );
+      }));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,6 +161,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               height: 60.0,
             ),
             TextFormField(
+              controller: fullName,
               decoration: const InputDecoration(hintText: "Full Name"),
             ),
             const SizedBox(
@@ -114,7 +171,9 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               height: 50,
               width: 150,
               child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    checkValue();
+                  },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.black,
                     side: const BorderSide(color: Colors.black),
@@ -124,7 +183,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                     ), // Border color
                   ),
                   child: const Text(
-                    "Login",
+                    "Submit",
                     style: TextStyle(fontSize: 15),
                   )),
             )

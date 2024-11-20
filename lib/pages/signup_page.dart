@@ -1,4 +1,5 @@
 import 'package:chit_chat/models/user_model.dart';
+import 'package:chit_chat/pages/complete_profile_page.dart';
 import 'package:chit_chat/pages/login_page.dart';
 import 'package:chit_chat/service/show_toast.dart';
 import 'package:chit_chat/service/validater.dart';
@@ -39,10 +40,15 @@ class _SignUpPageState extends State<SignUpPage> {
           .set(newUser.toMap())
           .then((value) {
         showToast("new User Created");
+      }).then((value) {
+        emailController.clear();
+        passwordController.clear();
+        cnPasswordController.clear();
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return CompleteProfilePage(
+              userModel: newUser, firebaseUser: userCredential!.user!);
+        }));
       });
-      emailController.clear();
-      passwordController.clear();
-      cnPasswordController.clear();
     }
   }
 

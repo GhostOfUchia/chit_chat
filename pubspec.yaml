@@ -41,6 +41,7 @@ dependencies:
   fluttertoast: ^8.2.8
   image_picker: ^1.1.2
   image_cropper: ^8.0.1
+  firebase_storage: ^12.2.0
 
 dev_dependencies:
   flutter_test:
