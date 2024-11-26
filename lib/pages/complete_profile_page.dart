@@ -6,7 +6,6 @@ import 'package:chit_chat/pages/home_page.dart';
 import 'package:chit_chat/service/show_toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -97,7 +96,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   // step Two => upload Data
   uploadData() async {
     // set up our storage
-    UploadTask uploadTask = FirebaseStorage.instance
+    /* UploadTask uploadTask = FirebaseStorage.instance
         .ref("ProfilePic")
         .child(widget.userModel.uid.toString())
         .putFile(profileImage!);
@@ -106,10 +105,10 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
     TaskSnapshot taskSnapshot = await uploadTask;
 
     // download image url for saving firebasecloudfirestore
-    String imageUrl = await taskSnapshot.ref.getDownloadURL();
+   String imageUrl = await taskSnapshot.ref.getDownloadURL(); */
     String userName = fullName.text.trim();
 
-    widget.userModel.profilepic = imageUrl;
+    // widget.userModel.profilepic = imageUrl;
     widget.userModel.fullname = userName;
 
     await FirebaseFirestore.instance
