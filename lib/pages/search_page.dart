@@ -24,13 +24,14 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<ChatRoomModel?> getChatroom(UserModel targetUser) async {
     ChatRoomModel? chatRoom;
-
+    log("method start");
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection("chatrooms")
         .where("participants.${widget.userModel.uid}", isEqualTo: true)
         .where("participants.${targetUser.uid}", isEqualTo: true)
         .get();
 
+    log(snapshot.docs.length.toString());
     if (snapshot.docs.isNotEmpty) {
       var snapdata = snapshot.docs[0].data();
       ChatRoomModel exitingchatroomModel =
@@ -126,19 +127,23 @@ class _SearchPageState extends State<SearchPage> {
                           UserModel searchUser = UserModel.fromMap(userMap);
                           return ListTile(
                             onTap: () async {
-                              log("method run");
                               ChatRoomModel? chatroomModel =
                                   await getChatroom(searchUser);
-                              Navigator.pop(context);
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return ChatRoomPage(
-                                  targetUser: searchUser,
-                                  chatRoomModel: chatroomModel!,
-                                  userModel: widget.userModel,
-                                  firebaseUser: widget.firebaseUser,
-                                );
-                              }));
+
+                              if (chatroomModel != null) {
+                                Navigator.pop(context);
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return ChatRoomPage(
+                                    targetUser: searchUser,
+                                    chatRoomModel: chatroomModel,
+                                    userModel: widget.userModel,
+                                    firebaseUser: widget.firebaseUser,
+                                  );
+                                }));
+                              } else {
+                                log("chat romm model null h");
+                              }
                             },
                             leading: const CircleAvatar(
                               backgroundColor: Colors.black,

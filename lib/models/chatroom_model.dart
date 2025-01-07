@@ -3,10 +3,7 @@ class ChatRoomModel {
   Map<String, dynamic>? participants;
   String? lastMessage;
 
-  ChatRoomModel(
-      {required this.chatroomid,
-      required this.participants,
-      required this.lastMessage});
+  ChatRoomModel({this.chatroomid, this.participants, this.lastMessage});
 
   ChatRoomModel.fromMap(Map<String, dynamic> map) {
     chatroomid = map["chatroomid"];

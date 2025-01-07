@@ -43,7 +43,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           .collection("messages")
           .doc(newMessage.messageid)
           .set(newMessage.toMap());
-    }
+    } // why we shoud not use await because some case internet not working and
+    // our firebase will support ofline messageing
+
+    widget.chatRoomModel.lastMessage = msg;
+    FirebaseFirestore.instance
+        .collection("chatrooms")
+        .doc(widget.chatRoomModel.chatroomid)
+        .set(widget.chatRoomModel.toMap());
   }
 
   @override
@@ -55,7 +62,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             const CircleAvatar(
               child: Icon(Icons.person),
             ),
-            Text(widget.targetUser.email.toString())
+            const SizedBox(
+              width: 30.0,
+            ),
+            Text(widget.targetUser.fullname.toString())
           ],
         ),
       ),
@@ -63,7 +73,77 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           child: Container(
         child: Column(
           children: [
-            Expanded(child: Container()),
+            Expanded(
+                child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("chatrooms")
+                    .doc(widget.chatRoomModel.chatroomid)
+                    .collection("messages")
+                    .orderBy("createdon", descending: true)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
+                        snapshot) {
+                  if (snapshot.connectionState == ConnectionState.active) {
+                    if (snapshot.hasData) {
+                      QuerySnapshot currentSnapshot =
+                          snapshot.data as QuerySnapshot;
+                      return ListView.builder(
+                        reverse: true,
+                        itemCount: currentSnapshot.docs.length,
+                        itemBuilder: (context, index) {
+                          MessageModel currentMessageModel =
+                              MessageModel.fromMap(currentSnapshot.docs[index]
+                                  .data() as Map<String, dynamic>);
+                          return Row(
+                            mainAxisAlignment: (currentMessageModel.sender ==
+                                    widget.userModel.uid)
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.all(5.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10.0, vertical: 5.0),
+                                decoration: BoxDecoration(
+                                    color: Colors.grey,
+                                    border: Border.all(
+                                      color: Colors.black,
+                                    ),
+                                    borderRadius: BorderRadius.circular(5.0)),
+                                child: Text(
+                                  currentMessageModel.message.toString(),
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else if (snapshot.hasError) {
+                      return const Center(
+                        child: Text(
+                            "An Error Accured ! Please Check Your Internet "),
+                      );
+                    } else {
+                      return const Center(
+                        child: Text("Say Hi To Your New Friend"),
+                      );
+                    }
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.black,
+                      ),
+                    );
+                  }
+                },
+              ),
+            )),
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: Container(
@@ -78,12 +158,17 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                 borderRadius: BorderRadius.circular(18.0))),
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       width: 60.0,
-                      child: Icon(
-                        Icons.send,
-                        size: 40.0,
-                        color: Colors.black,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.send,
+                          size: 40.0,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          sendMessage();
+                        },
                       ),
                     )
                   ],
