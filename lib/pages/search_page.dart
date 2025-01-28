@@ -30,7 +30,7 @@ class _SearchPageState extends State<SearchPage> {
         .where("participants.${widget.userModel.uid}", isEqualTo: true)
         .where("participants.${targetUser.uid}", isEqualTo: true)
         .get();
-
+    log(widget.userModel.fullname.toString());
     log(snapshot.docs.length.toString());
     if (snapshot.docs.isNotEmpty) {
       var snapdata = snapshot.docs[0].data();

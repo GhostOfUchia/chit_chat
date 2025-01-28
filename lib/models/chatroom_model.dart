@@ -14,7 +14,7 @@ class ChatRoomModel {
   Map<String, dynamic> toMap() {
     return {
       "chatroomid": chatroomid,
-      "particiupants": participants,
+      "participants": participants,
       "lastMessage": lastMessage
     };
   }

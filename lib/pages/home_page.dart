@@ -1,6 +1,7 @@
 import 'package:chit_chat/models/chatroom_model.dart';
 import 'package:chit_chat/models/firebase_helper.dart';
 import 'package:chit_chat/models/user_model.dart';
+import 'package:chit_chat/pages/chat_room_page.dart';
 import 'package:chit_chat/pages/login_page.dart';
 import 'package:chit_chat/pages/search_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,6 +24,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text(
+          "Chat App",
+        ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -73,15 +78,50 @@ class _HomePageState extends State<HomePage> {
                     return FutureBuilder(
                         future: FireBaseHelper.getUserById(participantsKeys[0]),
                         builder: (context, userData) {
-                          UserModel targetUser = userData.data as UserModel;
-                          return ListTile(
-                            leading: const CircleAvatar(
-                              child: Icon(Icons.person),
-                            ),
-                            title: Text(targetUser.fullname.toString()),
-                            subtitle:
-                                Text(chatRoomModel.lastMessage.toString()),
-                          );
+                          if (userData.connectionState ==
+                              ConnectionState.done) {
+                            if (userData.data != null) {
+                              UserModel targetUser = userData.data as UserModel;
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0, vertical: 10.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      border: Border.all(color: Colors.black)),
+                                  child: ListTile(
+                                    onTap: () {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) {
+                                        return ChatRoomPage(
+                                            targetUser: targetUser,
+                                            chatRoomModel: chatRoomModel,
+                                            userModel: widget.userModel,
+                                            firebaseUser: widget.firebaseUser);
+                                      }));
+                                    },
+                                    leading: const CircleAvatar(
+                                      child: Icon(Icons.person),
+                                    ),
+                                    title: Text(
+                                      targetUser.fullname.toString(),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    subtitle: Text(
+                                        chatRoomModel.lastMessage.toString()),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return Container();
+                            }
+                          } else {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
                         });
                   },
                 );

@@ -83,11 +83,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     .collection("messages")
                     .orderBy("createdon", descending: true)
                     .snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
-                        snapshot) {
+                builder: (BuildContext context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.active) {
                     if (snapshot.hasData) {
+                      print(snapshot.data.toString());
                       QuerySnapshot currentSnapshot =
                           snapshot.data as QuerySnapshot;
                       return ListView.builder(
@@ -108,15 +107,25 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10.0, vertical: 5.0),
                                 decoration: BoxDecoration(
-                                    color: Colors.grey,
+                                    color: (currentMessageModel.sender ==
+                                            widget.userModel.uid)
+                                        ? Colors.white
+                                        : Colors.black,
                                     border: Border.all(
-                                      color: Colors.black,
+                                      color: (currentMessageModel.sender ==
+                                              widget.userModel.uid)
+                                          ? Colors.black
+                                          : Colors.white,
                                     ),
                                     borderRadius: BorderRadius.circular(5.0)),
                                 child: Text(
                                   currentMessageModel.message.toString(),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       fontSize: 15,
+                                      color: (currentMessageModel.sender ==
+                                              widget.userModel.uid)
+                                          ? Colors.black
+                                          : Colors.white,
                                       fontWeight: FontWeight.w500),
                                 ),
                               ),
